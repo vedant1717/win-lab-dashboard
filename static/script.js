@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 item.innerHTML = `
                     <div class="storage-header">
                         <span>ARRAY ${disk.DeviceID}</span>
-                        <span>${used.toFixed(1)} GB / ${disk.SizeGB} GB</span>
+                        <span>${used.toFixed(1)} GB / ${disk.SizeGB} GB (${disk.FreeGB} GB Free)</span>
                     </div>
                     <div class="s-bar-bg">
                         <div class="s-bar-fill" style="width: 0%"></div>
@@ -225,7 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 tr.innerHTML = `
                     <td>${srv.Name}</td>
                     <td>${srv.DisplayName || '-'}</td>
-                    <td style="color: var(--cyan)">${srv.Status}</td>
                 `;
                 servicesTable.appendChild(tr);
             });
