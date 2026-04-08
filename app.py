@@ -29,6 +29,7 @@ def scan_system():
         )
 
         ps_script = """
+        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
         $ErrorActionPreference = "SilentlyContinue"
 
         # System Info
@@ -80,10 +81,10 @@ def scan_system():
         r = session.run_ps(ps_script)
 
         if r.status_code == 0:
-            output = r.std_out.decode('utf-8')
+            output = r.std_out.decode('utf-8', errors='replace')
             return jsonify(json.loads(output))
         else:
-            error_msg = r.std_err.decode('utf-8')
+            error_msg = r.std_err.decode('utf-8', errors='replace')
             return jsonify({'error': 'WinRM command failed', 'details': error_msg}), 500
 
     except Exception as e:
