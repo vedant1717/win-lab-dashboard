@@ -48,6 +48,9 @@ Enable-PSRemoting -Force -SkipNetworkProfileCheck
 Set-Item -Path WSMan:\localhost\Service\Auth\Basic -Value $true
 Set-Item -Path WSMan:\localhost\Service\AllowUnencrypted -Value $true
 
+# Open Windows Firewall for WinRM (Port 5985)
+New-NetFirewallRule -Name "WinRM-HTTP" -DisplayName "Allow WinRM HTTP (5985)" -Enabled True -Profile Any -Action Allow -Direction Inbound -LocalPort 5985 -Protocol TCP
+
 # Restart the WinRM service to apply
 Restart-Service WinRM
 ```
