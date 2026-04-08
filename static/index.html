@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab System Monitor</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background">
+        <div class="blob shape-1"></div>
+        <div class="blob shape-2"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Centralized Lab Monitor</h1>
+            <p>Enter the target machine credentials to fetch real-time system metrics.</p>
+        </header>
+
+        <main>
+            <section class="card form-section glass">
+                <form id="connectForm">
+                    <div class="input-group">
+                        <label for="ip">IP Address</label>
+                        <input type="text" id="ip" name="ip" placeholder="e.g. 192.168.1.50" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="e.g. Administrator" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter Password" required>
+                    </div>
+                    <button type="submit" id="submitBtn">
+                        <span class="btn-text">Connect & Fetch Stats</span>
+                        <div class="spinner hidden" id="spinner"></div>
+                    </button>
+                </form>
+                <div id="errorBox" class="error-box hidden"></div>
+            </section>
+
+            <section id="results" class="results-section hidden">
+                <div class="grid">
+                    <!-- System Info Card -->
+                    <div class="card glass stat-card">
+                        <h2>System Information</h2>
+                        <ul id="sysInfoList">
+                            <li><strong>OS:</strong> <span id="osName">-</span></li>
+                            <li><strong>Version:</strong> <span id="osVersion">-</span></li>
+                            <li><strong>Processor:</strong> <span id="cpuName">-</span></li>
+                            <li><strong>RAM:</strong> <span id="ramUsage">-</span> 
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="ramProgress"></div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Storage Card -->
+                    <div class="card glass stat-card">
+                        <h2>Storage capacity</h2>
+                        <div id="storageContainer" class="storage-list">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tables-grid">
+                    <!-- Services Card -->
+                    <div class="card glass table-card">
+                        <h2>Running Services <span class="badge" id="servicesCount">0</span></h2>
+                        <div class="table-container">
+                            <table id="servicesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Display Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Applications Card -->
+                    <div class="card glass table-card">
+                        <h2>Installed Applications <span class="badge" id="appsCount">0</span></h2>
+                        <div class="table-container">
+                            <table id="appsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Application</th>
+                                        <th>Version</th>
+                                        <th>Publisher</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
