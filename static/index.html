@@ -13,15 +13,28 @@
         <div class="blob shape-2"></div>
     </div>
 
-    <div class="container">
-        <header>
-            <h1>Centralized Lab Monitor</h1>
-            <p>Enter the target machine credentials to fetch real-time system metrics.</p>
-        </header>
+    <div class="app-container">
+        <!-- Sidebar for Saved Devices -->
+        <aside class="sidebar glass">
+            <h2>Saved Devices</h2>
+            <div id="deviceList" class="device-list">
+                <!-- Devices populated here -->
+            </div>
+        </aside>
 
-        <main>
+        <!-- Main Content -->
+        <main class="main-content">
+            <header>
+                <h1>Centralized Lab Monitor</h1>
+                <p>Select a saved device or connect to a new one.</p>
+            </header>
+
             <section class="card form-section glass">
                 <form id="connectForm">
+                    <div class="input-group">
+                        <label for="name">Device Name (Optional, for saving)</label>
+                        <input type="text" id="name" name="name" placeholder="e.g. Lab PC 1">
+                    </div>
                     <div class="input-group">
                         <label for="ip">IP Address</label>
                         <input type="text" id="ip" name="ip" placeholder="e.g. 192.168.1.50" required>
@@ -34,10 +47,13 @@
                         <label for="password">Password</label>
                         <input type="password" id="password" name="password" placeholder="Enter Password" required>
                     </div>
-                    <button type="submit" id="submitBtn">
-                        <span class="btn-text">Connect & Fetch Stats</span>
-                        <div class="spinner hidden" id="spinner"></div>
-                    </button>
+                    <div class="form-actions">
+                        <button type="submit" id="submitBtn">
+                            <span class="btn-text">Connect & Fetch Stats</span>
+                            <div class="spinner hidden" id="spinner"></div>
+                        </button>
+                        <button type="button" id="saveBtn" class="btn-secondary">Save Device</button>
+                    </div>
                 </form>
                 <div id="errorBox" class="error-box hidden"></div>
             </section>
@@ -61,17 +77,28 @@
 
                     <!-- Storage Card -->
                     <div class="card glass stat-card">
-                        <h2>Storage capacity</h2>
+                        <h2>Storage Capacity</h2>
                         <div id="storageContainer" class="storage-list">
                             <!-- Populated by JS -->
                         </div>
+                    </div>
+
+                    <!-- Active Users -->
+                    <div class="card glass stat-card">
+                        <h2>Connected Users</h2>
+                        <ul id="usersList" class="user-list">
+                            <!-- Populated by JS -->
+                        </ul>
                     </div>
                 </div>
 
                 <div class="tables-grid">
                     <!-- Services Card -->
                     <div class="card glass table-card">
-                        <h2>Running Services <span class="badge" id="servicesCount">0</span></h2>
+                        <div class="card-header">
+                            <h2>Running Services <span class="badge" id="servicesCount">0</span></h2>
+                            <input type="text" id="searchServices" class="search-input" placeholder="Search services...">
+                        </div>
                         <div class="table-container">
                             <table id="servicesTable">
                                 <thead>
@@ -89,7 +116,10 @@
 
                     <!-- Applications Card -->
                     <div class="card glass table-card">
-                        <h2>Installed Applications <span class="badge" id="appsCount">0</span></h2>
+                        <div class="card-header">
+                            <h2>Installed Apps <span class="badge" id="appsCount">0</span></h2>
+                            <input type="text" id="searchApps" class="search-input" placeholder="Search applications...">
+                        </div>
                         <div class="table-container">
                             <table id="appsTable">
                                 <thead>
