@@ -3,141 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab System Monitor</title>
+    <title>Futuristic Lab Monitor</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="background">
-        <div class="blob shape-1"></div>
-        <div class="blob shape-2"></div>
-    </div>
 
-    <div class="app-container">
-        <!-- Sidebar for Saved Devices -->
-        <aside class="sidebar glass">
-            <h2>Saved Devices</h2>
-            <div id="deviceList" class="device-list">
-                <!-- Devices populated here -->
-            </div>
-        </aside>
+    <!-- SCREEN 1: LOGIN & DEVICES GETWAY -->
+    <div id="screen-connect" class="view-screen active-screen">
+        <div class="gateway-container">
+            <!-- Sidebar / Saved Devices -->
+            <aside class="panel saved-panel">
+                <div class="panel-header">
+                    <div class="accent-line"></div>
+                    <h2>SYSTEM REGISTRY</h2>
+                </div>
+                <div id="deviceList" class="device-list">
+                    <!-- Javascript populates saved devices here -->
+                </div>
+            </aside>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <header>
-                <h1>Centralized Lab Monitor</h1>
-                <p>Select a saved device or connect to a new one.</p>
-            </header>
-
-            <section class="card form-section glass">
+            <!-- Connect Form -->
+            <main class="panel connect-panel">
+                <div class="panel-header">
+                    <h2>INITIATE LINK</h2>
+                    <p>Enter target coordinates to establish telemetry.</p>
+                </div>
+                
                 <form id="connectForm">
-                    <div class="input-group">
-                        <label for="name">Device Name (Optional, for saving)</label>
-                        <input type="text" id="name" name="name" placeholder="e.g. Lab PC 1">
+                    <div class="input-wrap">
+                        <label>DEVICE ALIAS (For Registry)</label>
+                        <input type="text" id="name" placeholder="Optimus-Node-01">
                     </div>
-                    <div class="input-group">
-                        <label for="ip">IP Address</label>
-                        <input type="text" id="ip" name="ip" placeholder="e.g. 192.168.1.50" required>
+                    <div class="input-wrap">
+                        <label>IPV4 ADDRESS</label>
+                        <input type="text" id="ip" placeholder="192.168.1.50" required>
                     </div>
-                    <div class="input-group">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" name="username" placeholder="e.g. Administrator" required>
+                    <div class="input-wrap">
+                        <label>ADMINISTRATOR AUTH</label>
+                        <input type="text" id="username" placeholder="Username" required>
                     </div>
-                    <div class="input-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" placeholder="Enter Password" required>
+                    <div class="input-wrap">
+                        <label>SECURITY KEY</label>
+                        <input type="password" id="password" placeholder="Password" required>
                     </div>
+
                     <div class="form-actions">
-                        <button type="submit" id="submitBtn">
-                            <span class="btn-text">Connect & Fetch Stats</span>
-                            <div class="spinner hidden" id="spinner"></div>
+                        <button type="submit" id="submitBtn" class="btn-cyan">
+                            <span class="btn-text">ESTABLISH UPLINK</span>
+                            <div class="loader hidden" id="spinner"></div>
                         </button>
-                        <button type="button" id="saveBtn" class="btn-secondary">Save Device</button>
+                        <button type="button" id="saveBtn" class="btn-outline">SAVE TO REGISTRY</button>
                     </div>
                 </form>
                 <div id="errorBox" class="error-box hidden"></div>
-            </section>
+            </main>
+        </div>
+    </div>
 
-            <section id="results" class="results-section hidden">
-                <div class="grid">
-                    <!-- System Info Card -->
-                    <div class="card glass stat-card">
-                        <h2>System Information</h2>
-                        <ul id="sysInfoList">
-                            <li><strong>OS:</strong> <span id="osName">-</span></li>
-                            <li><strong>Version:</strong> <span id="osVersion">-</span></li>
-                            <li><strong>Processor:</strong> <span id="cpuName">-</span></li>
-                            <li><strong>RAM:</strong> <span id="ramUsage">-</span> 
-                                <div class="progress-bar">
-                                    <div class="progress-fill" id="ramProgress"></div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
 
-                    <!-- Storage Card -->
-                    <div class="card glass stat-card">
-                        <h2>Storage Capacity</h2>
-                        <div id="storageContainer" class="storage-list">
-                            <!-- Populated by JS -->
+    <!-- SCREEN 2: STATS DASHBOARD -->
+    <div id="screen-dashboard" class="view-screen hidden-screen">
+        <!-- Top Nav Bar -->
+        <nav class="dash-nav">
+            <div class="nav-left">
+                <button id="disconnectBtn" class="btn-outline compact">&larr; ABORT LINK</button>
+                <div class="nav-status">
+                    <div class="pulse-dot"></div>
+                    <span>ACTIVE TELEMETRY: <strong id="navTargetIp" class="cyan-text">192.168.1.50</strong></span>
+                </div>
+            </div>
+            
+            <div class="nav-right">
+                <h1 class="logo-text">NET_SYS_OVERVIEW</h1>
+            </div>
+        </nav>
+
+        <div class="dash-grid">
+            <!-- Left Column: System Overviews -->
+            <div class="dash-col sys-overviews">
+                <!-- System Box -->
+                <div class="panel data-panel sys-info">
+                    <h3>HOST SPECS</h3>
+                    <ul id="sysInfoList">
+                        <li><span>OS:</span> <strong id="osName" class="cyan-text">-</strong></li>
+                        <li><span>VERSION:</span> <strong id="osVersion">-</strong></li>
+                        <li><span>CPU:</span> <strong id="cpuName">-</strong></li>
+                    </ul>
+                </div>
+                
+                <!-- Circular RAM Box -->
+                <div class="panel data-panel text-center">
+                    <h3>MEMORY ALLOCATION</h3>
+                    <div class="circle-wrap">
+                        <div class="circle-bg"></div>
+                        <div class="circle-fill" id="ramGradient" style="background: conic-gradient(#00f2fe 0%, transparent 0%);"></div>
+                        <div class="circle-inner">
+                            <span class="percent-text" id="ramPercentText">0%</span>
                         </div>
                     </div>
-
-                    <!-- Active Users -->
-                    <div class="card glass stat-card">
-                        <h2>Connected Users</h2>
-                        <ul id="usersList" class="user-list">
-                            <!-- Populated by JS -->
-                        </ul>
+                    <div class="gauge-labels">
+                        <span id="ramUsageDesc">0 GB / 0 GB</span>
                     </div>
                 </div>
 
-                <div class="tables-grid">
-                    <!-- Services Card -->
-                    <div class="card glass table-card">
-                        <div class="card-header">
-                            <h2>Running Services <span class="badge" id="servicesCount">0</span></h2>
-                            <input type="text" id="searchServices" class="search-input" placeholder="Search services...">
-                        </div>
-                        <div class="table-container">
-                            <table id="servicesTable">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Display Name</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Populated by JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Applications Card -->
-                    <div class="card glass table-card">
-                        <div class="card-header">
-                            <h2>Installed Apps <span class="badge" id="appsCount">0</span></h2>
-                            <input type="text" id="searchApps" class="search-input" placeholder="Search applications...">
-                        </div>
-                        <div class="table-container">
-                            <table id="appsTable">
-                                <thead>
-                                    <tr>
-                                        <th>Application</th>
-                                        <th>Version</th>
-                                        <th>Publisher</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Populated by JS -->
-                                </tbody>
-                            </table>
-                        </div>
+                <!-- Storage Boxes (Generated dynamically) -->
+                <div class="panel data-panel">
+                    <h3>STORAGE ARRAYS</h3>
+                    <div id="storageContainer" class="storage-list">
+                        <!-- Populated randomly -->
                     </div>
                 </div>
-            </section>
-        </main>
+            </div>
+
+            <!-- Right Column: Tables -->
+            <div class="dash-col table-flows">
+                
+                <!-- Services -->
+                <div class="panel data-panel large-panel">
+                    <div class="panel-header-flex">
+                        <h3>ACTIVE SERVICES <span class="badge" id="servicesCount">0</span></h3>
+                        <input type="text" id="searchServices" class="futuristic-search" placeholder="Search service node...">
+                    </div>
+                    <div class="table-scroll">
+                        <table id="servicesTable">
+                            <thead>
+                                <tr>
+                                    <th>SERVICE ID</th>
+                                    <th>DISPLAY NAME</th>
+                                    <th>STATUS</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Applications -->
+                <div class="panel data-panel large-panel">
+                    <div class="panel-header-flex">
+                        <h3>INSTALLED MODULES <span class="badge" id="appsCount">0</span></h3>
+                        <input type="text" id="searchApps" class="futuristic-search" placeholder="Search modules...">
+                    </div>
+                    <div class="table-scroll">
+                        <table id="appsTable">
+                            <thead>
+                                <tr>
+                                    <th>MODULE NAME</th>
+                                    <th>VERSION</th>
+                                    <th>AUTHORITY</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>

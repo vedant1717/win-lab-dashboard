@@ -1,21 +1,45 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // UI Elements - Screen Management
+    const screenConnect = document.getElementById('screen-connect');
+    const screenDashboard = document.getElementById('screen-dashboard');
+    const disconnectBtn = document.getElementById('disconnectBtn');
+
+    // UI Elements - Connect Form
     const form = document.getElementById('connectForm');
     const submitBtn = document.getElementById('submitBtn');
     const saveBtn = document.getElementById('saveBtn');
     const btnText = submitBtn.querySelector('.btn-text');
     const spinner = document.getElementById('spinner');
     const errorBox = document.getElementById('errorBox');
-    const resultsSection = document.getElementById('results');
     const deviceList = document.getElementById('deviceList');
+    const navTargetIp = document.getElementById('navTargetIp');
 
-    // Search Inputs
-    const searchServices = document.getElementById('searchServices');
-    const searchApps = document.getElementById('searchApps');
-
-    // Initial Load
+    // Init View
     fetchDevices();
 
-    // --- Device Management ---
+    // --- SCREEN NAVIGATION LOGIC ---
+    function showDashboard() {
+        screenConnect.classList.remove('active-screen');
+        screenConnect.classList.add('hidden-screen');
+        screenDashboard.classList.remove('hidden-screen');
+        // Minor timeout to allow display:block to apply before fading in opacity
+        setTimeout(() => {
+            screenDashboard.classList.add('active-screen');
+        }, 50);
+    }
+
+    function showConnectScreen() {
+        screenDashboard.classList.remove('active-screen');
+        screenDashboard.classList.add('hidden-screen');
+        screenConnect.classList.remove('hidden-screen');
+        setTimeout(() => {
+            screenConnect.classList.add('active-screen');
+        }, 50);
+    }
+
+    disconnectBtn.addEventListener('click', showConnectScreen);
+
+    // --- DEVICE MANAGEMENT ---
     async function fetchDevices() {
         try {
             const res = await fetch('/api/devices');
@@ -29,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderDeviceList(devices) {
         deviceList.innerHTML = '';
         if (devices.length === 0) {
-            deviceList.innerHTML = '<p style="color: var(--text-secondary); font-size: 0.85rem;">No devices saved yet.</p>';
+            deviceList.innerHTML = '<p style="color: var(--text-dim); font-size: 0.8rem;">No entries in registry.</p>';
             return;
         }
 
@@ -38,13 +62,12 @@ document.addEventListener('DOMContentLoaded', () => {
             div.className = 'device-item';
             div.innerHTML = `
                 <div class="device-info">
-                    <span class="device-name">${dev.name}</span>
-                    <span class="device-ip">${dev.ip}</span>
+                    <strong>${dev.name}</strong>
+                    <span>${dev.ip}</span>
                 </div>
-                <button class="device-delete" data-id="${dev.id}">&times;</button>
+                <button class="device-delete" data-id="${dev.id}" style="background:transparent;border:none;color:var(--danger);cursor:pointer;">&times;</button>
             `;
             
-            // Connect on click
             div.addEventListener('click', (e) => {
                 if(e.target.classList.contains('device-delete')) return;
                 document.getElementById('name').value = dev.name;
@@ -52,11 +75,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('username').value = dev.username;
                 document.getElementById('password').value = dev.password;
                 
-                // Trigger form submission
                 form.dispatchEvent(new Event('submit'));
             });
 
-            // Delete on click
             div.querySelector('.device-delete').addEventListener('click', async () => {
                 await fetch(`/api/devices/${dev.id}`, { method: 'DELETE' });
                 fetchDevices();
@@ -67,13 +88,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     saveBtn.addEventListener('click', async () => {
-        const name = document.getElementById('name').value || 'Unnamed Device';
+        const name = document.getElementById('name').value || 'Unknown Node';
         const ip = document.getElementById('ip').value;
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
 
         if (!ip || !username || !password) {
-            alert('Please fill out IP, Username, and Password to save a device.');
+            alert('IP, Username, and Password required for registry payload.');
             return;
         }
 
@@ -84,18 +105,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         fetchDevices();
-        alert('Device saved to sidebar!');
     });
 
 
-    // --- Connect & Fetch ---
+    // --- CONNECTION EXECUTOR ---
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         errorBox.classList.add('hidden');
-        resultsSection.classList.add('hidden');
         submitBtn.disabled = true;
-        btnText.textContent = 'Connecting...';
+        btnText.textContent = 'ESTABLISHING...';
         spinner.classList.remove('hidden');
 
         const ip = document.getElementById('ip').value;
@@ -112,33 +131,30 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.details || data.error || 'Failed to connect to the target machine.');
+                throw new Error(data.details || data.error || 'Connection refused by standard parameters.');
             }
 
+            navTargetIp.textContent = ip;
             populateDashboard(data);
-            resultsSection.classList.remove('hidden');
-            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            showDashboard();
 
         } catch (error) {
-            errorBox.textContent = `Error: ${error.message}`;
+            errorBox.textContent = `TELEMETRY ERROR: ${error.message}`;
             errorBox.classList.remove('hidden');
         } finally {
             submitBtn.disabled = false;
-            btnText.textContent = 'Connect & Fetch Stats';
+            btnText.textContent = 'ESTABLISH UPLINK';
             spinner.classList.add('hidden');
         }
     });
 
-    // --- Search Filtering ---
+    // --- SEARCH FILTERS ---
     function setupFilter(inputId, tableId) {
         document.getElementById(inputId).addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
-            const tbody = document.getElementById(tableId).querySelector('tbody');
-            const rows = tbody.querySelectorAll('tr');
-            
+            const rows = document.getElementById(tableId).querySelector('tbody').querySelectorAll('tr');
             rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(term) ? '' : 'none';
+                row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
             });
         });
     }
@@ -146,22 +162,27 @@ document.addEventListener('DOMContentLoaded', () => {
     setupFilter('searchServices', 'servicesTable');
     setupFilter('searchApps', 'appsTable');
 
-
-    // --- Dom Population ---
+    // --- UI POPULATOR ---
     function populateDashboard(data) {
         // System Info
         const sys = data.SystemInfo;
         document.getElementById('osName').textContent = sys.OSName;
         document.getElementById('osVersion').textContent = sys.OSVersion;
-        document.getElementById('cpuName').textContent = sys.Processor;
-        document.getElementById('ramUsage').textContent = `${sys.RAMUsedGB} GB / ${sys.RAMTotalGB} GB`;
+        document.getElementById('cpuName').textContent = sys.Processor || 'Unknown CPU Unit';
         
-        const ramPercent = (sys.RAMUsedGB / sys.RAMTotalGB) * 100;
-        const ramProgressBar = document.getElementById('ramProgress');
+        // Circular RAM Gradient using conic-gradient
+        const ramPercent = Math.min((sys.RAMUsedGB / sys.RAMTotalGB) * 100, 100).toFixed(0);
+        document.getElementById('ramPercentText').textContent = `${ramPercent}%`;
+        document.getElementById('ramUsageDesc').textContent = `${sys.RAMUsedGB} GB used of ${sys.RAMTotalGB} GB total`;
+        
+        const ramGradient = document.getElementById('ramGradient');
+        // Reset and Animate
+        ramGradient.style.background = `conic-gradient(var(--cyan) 0%, transparent 0%)`;
         setTimeout(() => {
-            ramProgressBar.style.width = `${Math.min(ramPercent, 100)}%`;
-            ramProgressBar.style.background = ramPercent > 85 ? 'var(--danger-color)' : 'linear-gradient(90deg, var(--primary-color), var(--success-color))';
-        }, 50);
+            const deg = (ramPercent / 100) * 360;
+            // The gradient fills clockwise
+            ramGradient.style.background = `conic-gradient(var(--cyan) ${deg}deg, transparent ${deg}deg)`;
+        }, 200);
 
         // Storage
         const storageContainer = document.getElementById('storageContainer');
@@ -174,43 +195,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 const item = document.createElement('div');
                 item.className = 'storage-item';
                 item.innerHTML = `
-                    <div class="storage-item-header">
-                        <span>Drive ${disk.DeviceID}</span>
-                        <span>${used.toFixed(2)} GB / ${disk.SizeGB} GB</span>
+                    <div class="storage-header">
+                        <span>ARRAY ${disk.DeviceID}</span>
+                        <span>${used.toFixed(1)} GB / ${disk.SizeGB} GB</span>
                     </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${percent}%; background: ${percent > 90 ? 'var(--danger-color)' : 'linear-gradient(90deg, var(--primary-color), var(--success-color))'}"></div>
+                    <div class="s-bar-bg">
+                        <div class="s-bar-fill" style="width: 0%"></div>
                     </div>
                 `;
                 storageContainer.appendChild(item);
+                
+                // Animate bar
+                setTimeout(() => {
+                    item.querySelector('.s-bar-fill').style.width = `${percent}%`;
+                }, 100);
             });
         } else {
-            storageContainer.innerHTML = '<p>No storage info available.</p>';
-        }
-
-        // Active Users
-        const usersList = document.getElementById('usersList');
-        usersList.innerHTML = '';
-        if (data.ConnectedUsers && data.ConnectedUsers.length > 0) {
-            data.ConnectedUsers.forEach(u => {
-                const li = document.createElement('li');
-                li.className = 'user-item';
-                const isAct = u.State && u.State.toLowerCase().includes('act');
-                li.innerHTML = `
-                    <span><strong>User:</strong> ${u.Username}</span>
-                    <span><strong>State:</strong> <span class="${isAct ? 'state-active' : ''}">${u.State}</span></span>
-                    <span><strong>Logon Time:</strong> ${u.LogonTime || 'Unknown'}</span>
-                `;
-                usersList.appendChild(li);
-            });
-        } else {
-            usersList.innerHTML = '<li class="user-item">No active remote users detected.</li>';
+            storageContainer.innerHTML = '<p class="cyan-text">No storage arrays detected.</p>';
         }
 
         // Services
         const servicesTable = document.getElementById('servicesTable').querySelector('tbody');
         servicesTable.innerHTML = '';
-        // Reset search
         document.getElementById('searchServices').value = ''; 
         if (data.Services && data.Services.length > 0) {
             document.getElementById('servicesCount').textContent = data.Services.length;
@@ -219,18 +225,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 tr.innerHTML = `
                     <td>${srv.Name}</td>
                     <td>${srv.DisplayName || '-'}</td>
+                    <td style="color: var(--cyan)">${srv.Status}</td>
                 `;
                 servicesTable.appendChild(tr);
             });
-        } else {
-            document.getElementById('servicesCount').textContent = '0';
-            servicesTable.innerHTML = '<tr><td colspan="2">No services found.</td></tr>';
         }
 
         // Applications
         const appsTable = document.getElementById('appsTable').querySelector('tbody');
         appsTable.innerHTML = '';
-        // Reset search
         document.getElementById('searchApps').value = '';
         if (data.Applications && data.Applications.length > 0) {
             document.getElementById('appsCount').textContent = data.Applications.length;
@@ -243,9 +246,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 appsTable.appendChild(tr);
             });
-        } else {
-            document.getElementById('appsCount').textContent = '0';
-            appsTable.innerHTML = '<tr><td colspan="3">No applications found.</td></tr>';
         }
     }
 });

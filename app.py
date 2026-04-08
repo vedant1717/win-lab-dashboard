@@ -9,8 +9,7 @@ app = Flask(__name__, static_folder='static', static_url_path='')
 DEVICES_FILE = 'devices.json'
 
 def load_devices():
-    if not os.path.exists(DEVICES_FILE):
-        return []
+    if not os.path.exists(DEVICES_FILE): return []
     with open(DEVICES_FILE, 'r') as f:
         try:
             return json.load(f)
@@ -69,7 +68,7 @@ def scan_system():
             server_cert_validation='ignore'
         )
 
-        ps_script = """[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;$ErrorActionPreference="SilentlyContinue";$os=Get-CimInstance Win32_OperatingSystem;$cs=Get-CimInstance Win32_ComputerSystem;$cpu=Get-CimInstance Win32_Processor|Select -First 1;$rt=[math]::Round($cs.TotalPhysicalMemory/1GB,2);$rf=[math]::Round($os.FreePhysicalMemory/1024,2);$ru=$rt-$rf;$si=@{OSName=$os.Caption;OSVersion=$os.Version;Processor=$cpu.Name;RAMTotalGB=$rt;RAMUsedGB=$ru;RAMFreeGB=$rf};$sl=@(Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3"|Select DeviceID,@{N="SizeGB";E={[math]::Round($_.Size/1GB,2)}},@{N="FreeGB";E={[math]::Round($_.FreeSpace/1GB,2)}});$sv=@(Get-Service|? Status -eq 'Running'|Select Name,DisplayName,Status);$a32=Get-ItemProperty HKLM:\\Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*|? DisplayName -ne $null|Select DisplayName,DisplayVersion,Publisher;$a64=Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*|? DisplayName -ne $null|Select DisplayName,DisplayVersion,Publisher;$aa=@($a32)+@($a64)|Sort DisplayName -Unique;$ul=@();$qr=quser 2>&1;if($qr -notmatch "No User exists" -and $qr -notmatch "is not recognized"){foreach($l in $qr|Select -Skip 1){$lp=$l -replace '\\s{2,}','|';$p=$lp.Split('|');if($p.Count -ge 5){$ul+=@{Username=$p[0].Trim().TrimStart('>');Session=$p[1];State=$p[3];LogonTime=$p[$p.Count-1]}}elseif($p.Count -ge 3){$ul+=@{Username=$p[0].Trim().TrimStart('>');Session="Unknown";State=$p[2];LogonTime="Unknown"}}}}@{SystemInfo=$si;Storage=$sl;Services=$sv;Applications=$aa;ConnectedUsers=$ul}|ConvertTo-Json -Depth 4"""
+        ps_script = """[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;$ErrorActionPreference="SilentlyContinue";$os=Get-CimInstance Win32_OperatingSystem;$cs=Get-CimInstance Win32_ComputerSystem;$cpu=Get-CimInstance Win32_Processor|Select -First 1;$rt=[math]::Round($cs.TotalPhysicalMemory/1GB,2);$rf=[math]::Round($os.FreePhysicalMemory/1024,2);$ru=$rt-$rf;$si=@{OSName=$os.Caption;OSVersion=$os.Version;Processor=$cpu.Name;RAMTotalGB=$rt;RAMUsedGB=$ru;RAMFreeGB=$rf};$sl=@(Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3"|Select DeviceID,@{N="SizeGB";E={[math]::Round($_.Size/1GB,2)}},@{N="FreeGB";E={[math]::Round($_.FreeSpace/1GB,2)}});$sv=@(Get-Service|? Status -eq 'Running'|Select Name,DisplayName,Status);$a32=Get-ItemProperty HKLM:\\Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*|? DisplayName -ne $null|Select DisplayName,DisplayVersion,Publisher;$a64=Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*|? DisplayName -ne $null|Select DisplayName,DisplayVersion,Publisher;$aa=@($a32)+@($a64)|Sort DisplayName -Unique;@{SystemInfo=$si;Storage=$sl;Services=$sv;Applications=$aa}|ConvertTo-Json -Depth 4"""
 
         r = session.run_ps(ps_script)
 
