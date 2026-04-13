@@ -63,7 +63,10 @@ Set-Item -Path WSMan:\localhost\Service\Auth\Basic -Value $true
 Set-Item -Path WSMan:\localhost\Service\AllowUnencrypted -Value $true
 
 # Open Windows Firewall for WinRM (Port 5985)
-New-NetFirewallRule -Name "WinRM-HTTP" -DisplayName "Allow WinRM HTTP (5985)" -Enabled True -Profile Any -Action Allow -Direction Inbound -LocalPort 5985 -Protocol TCP
+# SECURITY CONSTRAINT: We explicitly restrict the 'RemoteAddress' parameter strictly to the 
+# Dashboard's IP address (192.168.10.15). We also enforce 'Profile Domain,Private' to guarantee 
+# external Internet/Public networks cannot communicate with the service.
+New-NetFirewallRule -Name "WinRM-HTTP" -DisplayName "Allow WinRM HTTP (5985) - Dashboard Traffic" -Enabled True -Profile Domain,Private -Action Allow -Direction Inbound -LocalPort 5985 -Protocol TCP -RemoteAddress 192.168.10.15
 
 # Restart the WinRM service to apply
 Restart-Service WinRM
