@@ -36,15 +36,16 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. Configure Configuration & Keys
-Because this repository stores encrypted credentials, you will instantly be able to authenticate out-of-the-box using the hardcoded credentials below.
-*(We use local PBKDF2/SHA-256 `.env` hashing to mathematically secure your server backend).*
+### 2. Configure Local Authentication Keys
+Since this repository enforces heavily-encrypted zero-trust boundaries, credentials are not shipped with the installation. You must initialize your local gateway manually before the dashboard will grant you access.
 
-Initial authentication parameters:
-- **OPERATOR ID:** `vedantpatil`
-- **ACCESS KEY:** `Kpmg@Vpatil!1717`
+Run the provided python configuration script inside your repository:
+```bash
+python setup_auth.py
+```
+This interactive bootstrapper will ask you to supply a username and an access key (password). It will automatically run your inputs through a mathematical `SHA-256` hashing algorithm and safely construct a local `.env` configuration file on your machine.
 
-*If you ever want to change these default credentials, generate a new SHA-256 hash format string and paste it straight into your `.env` file!*
+*Note: The generated `.env` file is completely ignored by Git for your absolute security.*
 
 ### 3. Target Windows Machine Setup
 
