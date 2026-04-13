@@ -1,8 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     // UI Elements - Screen Management
+    const screenLogin = document.getElementById('screen-login');
     const screenConnect = document.getElementById('screen-connect');
     const screenDashboard = document.getElementById('screen-dashboard');
     const disconnectBtn = document.getElementById('disconnectBtn');
+
+    // UI Elements - App Login Form
+    const appLoginForm = document.getElementById('appLoginForm');
+    const appLoginBtn = document.getElementById('appLoginBtn');
+    const loginSpinner = document.getElementById('loginSpinner');
+    const loginErrorBox = document.getElementById('loginErrorBox');
 
     // UI Elements - Connect Form
     const form = document.getElementById('connectForm');
@@ -14,35 +21,85 @@ document.addEventListener('DOMContentLoaded', () => {
     const deviceList = document.getElementById('deviceList');
     const navTargetIp = document.getElementById('navTargetIp');
 
-    // Init View
-    fetchDevices();
+    // INITIALIZATION: Check if user already has a valid session 
+    checkAuth();
+
+    async function checkAuth() {
+        try {
+            const res = await fetch('/api/check_auth');
+            if(res.ok) {
+                showGateway();
+            }
+        } catch(e) {
+            // Not authenticated, stay on login screen
+        }
+    }
 
     // --- SCREEN NAVIGATION LOGIC ---
+    function showGateway() {
+        screenLogin.classList.remove('active-screen');
+        screenLogin.classList.add('hidden-screen');
+        
+        screenDashboard.classList.remove('active-screen');
+        screenDashboard.classList.add('hidden-screen');
+
+        screenConnect.classList.remove('hidden-screen');
+        setTimeout(() => {
+            screenConnect.classList.add('active-screen');
+        }, 50);
+
+        fetchDevices(); // Load saved devices once authenticated
+    }
+
     function showDashboard() {
         screenConnect.classList.remove('active-screen');
         screenConnect.classList.add('hidden-screen');
+        
         screenDashboard.classList.remove('hidden-screen');
-        // Minor timeout to allow display:block to apply before fading in opacity
         setTimeout(() => {
             screenDashboard.classList.add('active-screen');
         }, 50);
     }
 
-    function showConnectScreen() {
-        screenDashboard.classList.remove('active-screen');
-        screenDashboard.classList.add('hidden-screen');
-        screenConnect.classList.remove('hidden-screen');
-        setTimeout(() => {
-            screenConnect.classList.add('active-screen');
-        }, 50);
-    }
+    disconnectBtn.addEventListener('click', showGateway);
 
-    disconnectBtn.addEventListener('click', showConnectScreen);
+    // --- APP LOGIN EXECUTOR ---
+    appLoginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        loginErrorBox.classList.add('hidden');
+        appLoginBtn.disabled = true;
+        loginSpinner.classList.remove('hidden');
+
+        const appUsername = document.getElementById('appUsername').value;
+        const appPassword = document.getElementById('appPassword').value;
+
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: appUsername, password: appPassword })
+            });
+
+            if(response.ok) {
+                showGateway();
+            } else {
+                const data = await response.json();
+                throw new Error(data.error || 'Invalid credentials');
+            }
+        } catch (error) {
+            loginErrorBox.textContent = `AUTH FAILED: ${error.message}`;
+            loginErrorBox.classList.remove('hidden');
+        } finally {
+            appLoginBtn.disabled = false;
+            loginSpinner.classList.add('hidden');
+        }
+    });
 
     // --- DEVICE MANAGEMENT ---
     async function fetchDevices() {
         try {
             const res = await fetch('/api/devices');
+            if(!res.ok) return; // Prevent parsing if unauthorized
             const devices = await res.json();
             renderDeviceList(devices);
         } catch (e) {
@@ -131,6 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (!response.ok) {
+                if(response.status === 401) throw new Error("Unauthorized Session. Please log in again.");
                 throw new Error(data.details || data.error || 'Connection refused by standard parameters.');
             }
 

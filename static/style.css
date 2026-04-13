@@ -405,3 +405,41 @@ tr:hover td {
 }
 @keyframes spin { 100% { transform: rotate(360deg); } }
 .hidden { display: none !important; }
+
+/* Appending to style.css to support new login screen elements */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.login-panel {
+    width: 100%;
+    max-width: 450px;
+    padding: 3rem 2rem;
+}
+
+.branding-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.branding-header h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.kpmg-logo {
+    height: 45px;
+    margin-bottom: 1.5rem;
+}
+
+.kpmg-logo-small {
+    height: 35px;
+    margin-bottom: 1rem;
+}
+
+.text-center { text-align: center; }
+.center-auto { margin-left: auto; margin-right: auto; }
+.full-width { width: 100%; }

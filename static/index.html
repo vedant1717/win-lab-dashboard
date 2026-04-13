@@ -3,14 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Futuristic Lab Monitor</title>
+    <title>NESCO CYBER LAB DASHBOARD</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- SCREEN 1: LOGIN & DEVICES GETWAY -->
-    <div id="screen-connect" class="view-screen active-screen">
+    <!-- SCREEN 0: APP LOGIN -->
+    <div id="screen-login" class="view-screen active-screen">
+        <div class="login-container">
+            <div class="panel login-panel">
+                <div class="branding-header text-center">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/9d/KPMG_logo.svg" alt="KPMG Logo" class="kpmg-logo">
+                    <h2>NESCO CYBER LAB DASHBOARD</h2>
+                    <div class="accent-line center-auto"></div>
+                </div>
+                <form id="appLoginForm">
+                    <div class="input-wrap">
+                        <label>OPERATOR ID</label>
+                        <input type="text" id="appUsername" placeholder="Enter System Username" required>
+                    </div>
+                    <div class="input-wrap">
+                        <label>ACCESS KEY</label>
+                        <input type="password" id="appPassword" placeholder="Enter Secure Password" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" id="appLoginBtn" class="btn-cyan full-width">
+                            <span class="btn-text">AUTHENTICATE SYSTEM</span>
+                            <div class="loader hidden" id="loginSpinner"></div>
+                        </button>
+                    </div>
+                    <div id="loginErrorBox" class="error-box hidden" style="margin-top: 1rem;"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 1: LOGIN & DEVICES GATEWAY -->
+    <div id="screen-connect" class="view-screen hidden-screen">
         <div class="gateway-container">
             <!-- Sidebar / Saved Devices -->
             <aside class="panel saved-panel">
@@ -25,8 +55,9 @@
 
             <!-- Connect Form -->
             <main class="panel connect-panel">
-                <div class="panel-header">
-                    <h2>INITIATE LINK</h2>
+                <div class="branding-header">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/9d/KPMG_logo.svg" alt="KPMG Logo" class="kpmg-logo-small">
+                    <h2>NESCO CYBER LAB DASHBOARD</h2>
                     <p>Enter target coordinates to establish telemetry.</p>
                 </div>
                 
@@ -40,12 +71,12 @@
                         <input type="text" id="ip" placeholder="192.168.1.50" required>
                     </div>
                     <div class="input-wrap">
-                        <label>ADMINISTRATOR AUTH</label>
-                        <input type="text" id="username" placeholder="Username" required>
+                        <label>TARGET ADMINISTRATOR AUTH</label>
+                        <input type="text" id="username" placeholder="Target Windows Username" required>
                     </div>
                     <div class="input-wrap">
-                        <label>SECURITY KEY</label>
-                        <input type="password" id="password" placeholder="Password" required>
+                        <label>TARGET SECURITY KEY</label>
+                        <input type="password" id="password" placeholder="Target Windows Password" required>
                     </div>
 
                     <div class="form-actions">
@@ -74,8 +105,9 @@
                 </div>
             </div>
             
-            <div class="nav-right">
-                <h1 class="logo-text">NET_SYS_OVERVIEW</h1>
+            <div class="nav-right" style="display: flex; align-items: center; gap: 1rem;">
+                <h1 class="logo-text">NESCO CYBER LAB DASHBOARD</h1>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/9/9d/KPMG_logo.svg" alt="KPMG Logo" style="height: 30px;">
             </div>
         </nav>
 
