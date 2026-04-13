@@ -35,6 +35,20 @@
                     </div>
                     <div id="loginErrorBox" class="error-box hidden" style="margin-top: 1rem;"></div>
                 </form>
+
+                <form id="mfaForm" class="hidden">
+                    <div class="input-wrap">
+                        <label>AUTHENTICATOR TOKEN</label>
+                        <input type="text" id="mfaCode" placeholder="Enter 6-Digit App Code" maxlength="6" autocomplete="off" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" id="mfaSubmitBtn" class="btn-cyan full-width">
+                            <span class="btn-text">VERIFY MFA TOKEN</span>
+                            <div class="loader hidden" id="mfaSpinner"></div>
+                        </button>
+                    </div>
+                    <div id="mfaErrorBox" class="error-box hidden" style="margin-top: 1rem;"></div>
+                </form>
             </div>
         </div>
     </div>

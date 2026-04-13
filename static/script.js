@@ -80,13 +80,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username: appUsername, password: appPassword })
             });
+            const data = await response.json();
 
-            if(response.ok) {
-                showGateway();
-                resetInactivityTimer();
-                document.getElementById('appPassword').value = '';
+            if(response.ok && data.mfa_required) {
+                // Shift UI to MFA Entry
+                appLoginForm.classList.add('hidden');
+                document.getElementById('mfaForm').classList.remove('hidden');
             } else {
-                const data = await response.json();
                 throw new Error(data.error || 'Invalid credentials');
             }
         } catch (error) {
@@ -95,6 +95,48 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             appLoginBtn.disabled = false;
             loginSpinner.classList.add('hidden');
+        }
+    });
+
+    const mfaForm = document.getElementById('mfaForm');
+    const mfaSubmitBtn = document.getElementById('mfaSubmitBtn');
+    const mfaSpinner = document.getElementById('mfaSpinner');
+    const mfaErrorBox = document.getElementById('mfaErrorBox');
+
+    mfaForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        mfaErrorBox.classList.add('hidden');
+        mfaSubmitBtn.disabled = true;
+        mfaSpinner.classList.remove('hidden');
+
+        const mfaCode = document.getElementById('mfaCode').value;
+
+        try {
+            const response = await fetch('/api/mfa_verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mfa_code: mfaCode })
+            });
+
+            if (response.ok) {
+                showGateway();
+                resetInactivityTimer();
+                mfaForm.reset();
+                appLoginForm.reset();
+                
+                // Return to login-view standard state for when user logs out automatically
+                mfaForm.classList.add('hidden');
+                appLoginForm.classList.remove('hidden');
+            } else {
+                const data = await response.json();
+                throw new Error(data.error || 'Invalid MFA Code');
+            }
+        } catch (error) {
+            mfaErrorBox.textContent = `MFA FAILED: ${error.message}`;
+            mfaErrorBox.classList.remove('hidden');
+        } finally {
+            mfaSubmitBtn.disabled = false;
+            mfaSpinner.classList.add('hidden');
         }
     });
 

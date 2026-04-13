@@ -4,6 +4,7 @@ import uuid
 from flask import Flask, request, jsonify, send_file, session
 import winrm
 import hashlib
+import pyotp
 from dotenv import load_dotenv
 from datetime import timedelta
 
@@ -18,7 +19,7 @@ DEVICES_FILE = 'devices.json'
 @app.before_request
 def require_login():
     # Only protect API routes
-    if request.path.startswith('/api/') and request.path not in ['/api/login', '/api/check_auth']:
+    if request.path.startswith('/api/') and request.path not in ['/api/login', '/api/mfa_verify', '/api/check_auth']:
         if not session.get('logged_in'):
             return jsonify({'error': 'Unauthorized'}), 401
 
@@ -33,9 +34,29 @@ def login():
     
     if username == os.getenv('APP_USERNAME') and input_hash == os.getenv('APP_PASSWORD_HASH'):
         session.permanent = True
+        session['pre_auth'] = True
+        return jsonify({'mfa_required': True})
+    return jsonify({'error': 'Invalid credentials'}), 401
+
+@app.route('/api/mfa_verify', methods=['POST'])
+def mfa_verify():
+    if not session.get('pre_auth'):
+        return jsonify({'error': 'Unauthorized flow. Perform primary login first.'}), 401
+        
+    data = request.json
+    mfa_code = data.get('mfa_code')
+    mfa_secret = os.getenv('MFA_SECRET')
+    
+    if not mfa_secret:
+        return jsonify({'error': 'Server misconfiguration. Run python setup_auth.py to build MFA.'}), 500
+
+    totp = pyotp.TOTP(mfa_secret)
+    if totp.verify(mfa_code):
+        session.pop('pre_auth', None)
         session['logged_in'] = True
         return jsonify({'success': True})
-    return jsonify({'error': 'Invalid credentials'}), 401
+    
+    return jsonify({'error': 'Invalid Multi-Factor Access Token'}), 401
 
 @app.route('/api/logout', methods=['POST'])
 def logout():
