@@ -4,11 +4,13 @@ import uuid
 from flask import Flask, request, jsonify, send_file, session
 import winrm
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()
 
 app = Flask(__name__, static_folder='static', static_url_path='')
 app.secret_key = os.getenv('SECRET_KEY', os.urandom(24))
+app.permanent_session_lifetime = timedelta(minutes=5)
 
 DEVICES_FILE = 'devices.json'
 
@@ -26,9 +28,15 @@ def login():
     password = data.get('password')
     
     if username == os.getenv('APP_USERNAME') and password == os.getenv('APP_PASSWORD'):
+        session.permanent = True
         session['logged_in'] = True
         return jsonify({'success': True})
     return jsonify({'error': 'Invalid credentials'}), 401
+
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return jsonify({'success': True})
 
 @app.route('/api/check_auth', methods=['GET'])
 def check_auth():

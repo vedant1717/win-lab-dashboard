@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/check_auth');
             if(res.ok) {
                 showGateway();
+                resetInactivityTimer();
             }
         } catch(e) {
             // Not authenticated, stay on login screen
@@ -82,6 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if(response.ok) {
                 showGateway();
+                resetInactivityTimer();
+                document.getElementById('appPassword').value = '';
             } else {
                 const data = await response.json();
                 throw new Error(data.error || 'Invalid credentials');
@@ -305,4 +308,42 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
+
+    // --- INACTIVITY TIMEOUT LOGIC ---
+    let inactivityTimer;
+    const INACTIVITY_LIMIT_MS = 5 * 60 * 1000; // 5 minutes
+
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+        // Only run timeout active logic if we're not already on the login screen
+        if (!screenLogin.classList.contains('active-screen')) {
+            inactivityTimer = setTimeout(forceLogout, INACTIVITY_LIMIT_MS);
+        }
+    }
+
+    async function forceLogout() {
+        try {
+            await fetch('/api/logout', { method: 'POST' });
+        } catch(e) {}
+        
+        // Hide all screens and show login screen
+        screenDashboard.classList.remove('active-screen');
+        screenDashboard.classList.add('hidden-screen');
+        screenConnect.classList.remove('active-screen');
+        screenConnect.classList.add('hidden-screen');
+        
+        screenLogin.classList.remove('hidden-screen');
+        setTimeout(() => { screenLogin.classList.add('active-screen'); }, 50);
+
+        // Notify user
+        loginErrorBox.textContent = "SESSION EXPIRED: LOGGED OUT DUE TO INACTIVITY.";
+        loginErrorBox.classList.remove('hidden');
+    }
+
+    // Bind global activity events
+    window.addEventListener('mousemove', resetInactivityTimer);
+    window.addEventListener('keypress', resetInactivityTimer);
+    window.addEventListener('click', resetInactivityTimer);
+    window.addEventListener('scroll', resetInactivityTimer);
+    
 });
