@@ -1,4 +1,3 @@
-import hashlib
 import os
 
 try:
@@ -11,24 +10,16 @@ def main():
     print("=== NESCO CYBER LAB DASHBOARD ===")
     print("MFA Deployment & Gateway Setup\\n")
     
-    username = "admin"
-    password = "kpmg@1717"
-    
-    # Generate hashes
-    password_hash = hashlib.sha256(password.encode()).hexdigest()
+    # Generate cryptographic parameters
     secret_key = os.urandom(24).hex()
-    
-    # Generate MFA Secret
     mfa_secret = pyotp.random_base32()
     
     # Write .env locally
     with open(".env", "w") as f:
-        f.write(f"APP_USERNAME={username}\\n")
-        f.write(f"APP_PASSWORD_HASH={password_hash}\\n")
         f.write(f"SECRET_KEY={secret_key}\\n")
         f.write(f"MFA_SECRET={mfa_secret}\\n")
 
-    print("\\n[SUCCESS] Administrator Hash & Keys saved to '.env' securely.")
+    print("[SUCCESS] Core Security Keys generated and saved to '.env' securely.")
     
     # Build MFA Provisioning URI
     totp = pyotp.TOTP(mfa_secret)

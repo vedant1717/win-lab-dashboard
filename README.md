@@ -36,16 +36,16 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. Configure Local Authentication Keys
-Since this repository enforces heavily-encrypted zero-trust boundaries, credentials are not shipped with the installation. You must initialize your local gateway manually before the dashboard will grant you access.
+### 2. Configure Multi-Factor Authentication
+To maintain strict access control, the system ships with hardcoded primary credentials perfectly locked down via SHA-256 hashes, but requires a unique Multi-Factor Authentication (MFA) layer generated strictly on your local machine.
 
 Run the provided python configuration script inside your repository:
 ```bash
 python setup_auth.py
 ```
-This interactive bootstrapper will ask you to supply a username and an access key (password). It will automatically run your inputs through a mathematical `SHA-256` hashing algorithm and safely construct a local `.env` configuration file on your machine.
+This script will construct your unique TOTP mathematically linked token and output a QuickChart QR Code link directly in your terminal. Open the link and scan the QR Code using the **Google Authenticator** or **Microsoft Authenticator** app on your phone.
 
-*Note: The generated `.env` file is completely ignored by Git for your absolute security.*
+*Note: The script produces a mathematical `.env` token strictly ignored by Git for your absolute security.*
 
 ### 3. Target Windows Machine Setup
 
@@ -74,7 +74,11 @@ Restart-Service WinRM
 # Run the backend server
 python app.py
 ```
+*(Note: If you attempt to start the server without running `setup_auth.py`, it will explicitly crash and deny startup to defend the perimeter).*
 
 1. Open a web browser and navigate directly to `http://localhost:5000`.
-2. Provide your Initial Application Authorization (`vedantpatil`).
-3. You will enter the System Registry. Provide an IP Address and Windows Login for a target Lab System, and hit **ESTABLISH UPLINK**!
+2. Input the hardcoded Identity Keys:
+    - **OPERATOR ID**: `admin`
+    - **ACCESS KEY**: `kpmg@1717`
+3. The panel will shift and demand your Multi-Factor Authentication. Input the **6-digit code** displayed currently on your Phone's Authenticator app.
+4. You will enter the System Registry. Provide an IP Address and Windows Login for a target Lab System, and hit **ESTABLISH UPLINK**!

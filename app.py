@@ -7,8 +7,14 @@ import hashlib
 import pyotp
 from dotenv import load_dotenv
 from datetime import timedelta
+import sys
 
 load_dotenv()
+
+if not os.getenv('MFA_SECRET'):
+    print("FATAL: Multi-Factor Authentication is not configured.")
+    print("Please run 'python setup_auth.py' first to initialize the server.")
+    sys.exit(1)
 
 app = Flask(__name__, static_folder='static', static_url_path='')
 app.secret_key = os.getenv('SECRET_KEY', os.urandom(24))
@@ -29,10 +35,11 @@ def login():
     username = data.get('username')
     input_password = data.get('password')
     
-    # Hash the input and compare to the hash stored in .env
+    # Hash the input and compare to the hash stored for kpmg@1717
     input_hash = hashlib.sha256(input_password.encode()).hexdigest()
+    EXPECTED_HASH = "1011dda161bc599138353ce282544a77d73a25042a432f887e76415eae9f7166"
     
-    if username == os.getenv('APP_USERNAME') and input_hash == os.getenv('APP_PASSWORD_HASH'):
+    if username == "admin" and input_hash == EXPECTED_HASH:
         session.permanent = True
         session['pre_auth'] = True
         return jsonify({'mfa_required': True})
