@@ -3,6 +3,7 @@ import os
 import uuid
 from flask import Flask, request, jsonify, send_file, session
 import winrm
+import hashlib
 from dotenv import load_dotenv
 from datetime import timedelta
 
@@ -25,9 +26,12 @@ def require_login():
 def login():
     data = request.json
     username = data.get('username')
-    password = data.get('password')
+    input_password = data.get('password')
     
-    if username == os.getenv('APP_USERNAME') and password == os.getenv('APP_PASSWORD'):
+    # Hash the input and compare to the hash stored in .env
+    input_hash = hashlib.sha256(input_password.encode()).hexdigest()
+    
+    if username == os.getenv('APP_USERNAME') and input_hash == os.getenv('APP_PASSWORD_HASH'):
         session.permanent = True
         session['logged_in'] = True
         return jsonify({'success': True})
