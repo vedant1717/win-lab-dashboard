@@ -1,8 +1,16 @@
-# Windows Lab System Monitor Dashboard
+# NESCO Cyber Lab Monitoring Dashboard
 
-A centralized, **agentless** web dashboard to monitor Windows computers in a lab environment in real-time. Built with Python (Flask) and a modern, glassmorphism-styled vanilla web frontend. 
+A centralized, **agentless** Single Page Application (SPA) dashboard to universally monitor Windows computers in a lab environment in real-time. Built with Python (Flask) and a state-of-the-art futuristic GUI.
 
 Easily input a target computer's IP address, username, and password to instantly fetch its system specs, storage distribution, running services, and installed applications. No client software installation required!
+
+## Features
+- **True SPA Architecture**: Clean transitions between Secure Gateway, Target Registry, and Data Views.
+- **KPMG/NESCO Branding**: Built-in institutional aesthetics featuring premium dark mode, glassmorphism UI, and custom animated `<conic-gradient>` telemetry data rendering.
+- **Save State Persistence**: Allows users to save favorite remote computers (IP + Creds) securely to an offline `devices.json` configuration for one-click access.
+- **Instant Search Filtering**: Locate specific running Windows Services or Apps instantaneously through client-side Javascript-filtered inputs.
+- **Encrypted Application Access**: The frontend is guarded by a secure `.env` mathematical Hash system.
+- **Autopilot Timeout**: Activity listeners automatically expire Flask JWT Sessions and rip users to the login screen after 5 minutes of total inactivity.
 
 ## Prerequisites
 
@@ -16,35 +24,40 @@ Easily input a target computer's IP address, username, and password to instantly
 Clone this repository to the machine that will host the dashboard (e.g., your admin PC or server):
 
 ```bash
-# Clone the repo (if uploaded to github)
-git clone https://github.com/yourusername/win-lab-dashboard.git
+# Clone the repository
+git clone https://github.com/vedantpatil/win-lab-dashboard.git
 cd win-lab-dashboard
 
 # Create a virtual environment (optional but recommended)
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install requirements
 pip install -r requirements.txt
-
-# Run the backend server
-python app.py
 ```
 
-The server will start at `http://0.0.0.0:5000`. You can access the dashboard in your browser via `http://localhost:5000` or the host's IP address (`http://HOST_IP:5000`).
+### 2. Configure Configuration & Keys
+Because this repository stores encrypted credentials, you will instantly be able to authenticate out-of-the-box using the hardcoded credentials below.
+*(We use local PBKDF2/SHA-256 `.env` hashing to mathematically secure your server backend).*
 
-### 2. Target Windows Machine Setup
+Initial authentication parameters:
+- **OPERATOR ID:** `vedantpatil`
+- **ACCESS KEY:** `Kpmg@Vpatil!1717`
+
+*If you ever want to change these default credentials, generate a new SHA-256 hash format string and paste it straight into your `.env` file!*
+
+### 3. Target Windows Machine Setup
 
 Because this is an agentless dashboard, it relies on **Windows Remote Management (WinRM)**. Lab environments often have this disabled for security reasons, so you must enable it on your target computers first.
 
-Run the following command in an **elevated (Run as Administrator) PowerShell** console on the lab computers you wish to monitor:
+Run the following command in an **elevated (Run as Administrator) PowerShell** console on the Windows machines you wish to monitor:
 
 ```powershell
 # Enable PSRemoting
 Enable-PSRemoting -Force -SkipNetworkProfileCheck
 
 # Enable basic authentication and unencrypted traffic for standard HTTP WinRM
-# NOTE: Only use this in a secure lab environment!
+# NOTE: Only use this in a secure local lab environment!
 Set-Item -Path WSMan:\localhost\Service\Auth\Basic -Value $true
 Set-Item -Path WSMan:\localhost\Service\AllowUnencrypted -Value $true
 
@@ -55,11 +68,12 @@ New-NetFirewallRule -Name "WinRM-HTTP" -DisplayName "Allow WinRM HTTP (5985)" -E
 Restart-Service WinRM
 ```
 
-## Usage
+## Running The System
+```bash
+# Run the backend server
+python app.py
+```
 
-1. Open a web browser and go to `http://localhost:5000`.
-2. Input the target Windows machine's IP address (e.g. `192.168.1.50`).
-3. Enter the target's Administrator credentials or a user in the Remote Management Users group.
-4. Click **Connect & Fetch Stats**.
-
-The dashboard will asynchronously execute a PowerShell script payload, aggregate the data, and render beautiful live metrics!
+1. Open a web browser and navigate directly to `http://localhost:5000`.
+2. Provide your Initial Application Authorization (`vedantpatil`).
+3. You will enter the System Registry. Provide an IP Address and Windows Login for a target Lab System, and hit **ESTABLISH UPLINK**!
